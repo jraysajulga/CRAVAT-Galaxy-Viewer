@@ -24,6 +24,8 @@
 
         <link rel="stylesheet" type="text/css" href="${repository_root}/css/datatables.css"/>
         <script type="text/javascript" src="${app_root}/lib/datatables.js"></script>
+        <script type="text/javascript" src="${app_root}/lib/sigma.js-1.2.1/src/sigma.core.js"></script>
+        <script type="text/javascript" src="${app_root}/lib/sigma.js-1.2.1/plugins/sigma.parsers.json/sigma.parsers.json.js"></script>
 
 
         ${h.js( 'libs/jquery/select2',

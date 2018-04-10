@@ -1,4 +1,4 @@
-define(['plugin/Views/sidebar', 'plugin/lib/cytoscape', 'plugin/lib/nvd3_pie','plugin/lib/biocircos-1.1.2'],
+define(['plugin/views/sidebar', 'plugin/lib/cytoscape', 'plugin/lib/nvd3_pie','plugin/lib/biocircos-1.1.2'],
 	function(Sidebar, cytoscape){
 		return Backbone.View.extend({
 			className : 'contentTab',
@@ -28,6 +28,7 @@ define(['plugin/Views/sidebar', 'plugin/lib/cytoscape', 'plugin/lib/nvd3_pie','p
 									"</div>",
 									"<div id='CircosPlot' class='bordered'><h2>Circos Plot</h2><div id='Circos-Plot'>", '</div></div>',
 									'<div class="summaryTable"><h2>Top Genes</h2><table id=','"top-genes-table">','</table></div>',
+									'<div id="sigma"></div>',
 									'<div id="ndex" class="bordered"><h2>NDEX Networks</h2><div id="cy"></div></div>',
 								'</div>'].join(''));
 				this.$el.append($rightCell);
@@ -132,6 +133,13 @@ define(['plugin/Views/sidebar', 'plugin/lib/cytoscape', 'plugin/lib/nvd3_pie','p
 				console.log(dataNDEX)
 				console.log('Contains ' + edges.length + ' edges');
 				console.log('Contains ' + nodes.length + ' nodes');
+
+				sigma.parsers.json(dataNDEX, {
+				    container: 'sigma',
+				    settings: {
+				      defaultNodeColor: '#ec5148'
+				    }
+				  });
 
 				var cy = cytoscape({
 
