@@ -24,12 +24,12 @@ define(['plugin/views/loader'],
 
                   initialize : function(options){
                       this.columnTypeCollection = new ColumnTypeCollection({model : this.model});
-                      this.model.on('change:headerConfig', this.renderColumnOptions, this);
+                      //this.model.on('change:headerConfig', this.renderColumnOptions, this);
                       this.render();
+                      //this.model.on('change:Job ID', this.render, this);
                   },
 
                   toggleVisibility : function(){
-                    console.log('Togglign visibility');
                     if (parseInt(this.$el.css('width')) <= 20){
                       this.$el.css('max-width', '235px');  
                       //this.$el.css('max-width', '250px');  
@@ -44,13 +44,16 @@ define(['plugin/views/loader'],
                   render : function(){
                       $sidebar = $('<div>', {class : 'sidebar'});
 
-                      var $content = $('<div>', {'class' : 'column-type-collection'});
+                      $content = $('<div>', {'class' : 'column-type-collection'});
                       $content.append(this.model.get('Job ID'));
+                      //$content.html('rsajulga_20180522_155808');
+
                       this.button = $('<button>', {'class' : 'sidebar-button'});
                       this.button.append('<');
                       $sidebar.append(this.button);
                       $sidebar.append(new Box({name : 'Job Info', content: $content}).el);
                       this.$el.html($sidebar);
+                      this.renderColumnOptions();
                   },
 
                   renderColumnOptions : function(){
@@ -77,7 +80,7 @@ define(['plugin/views/loader'],
                                                   errorNumber : this.model.get('Number of errors'),
                                                   variantNumber : this.model.get('Number of variants'),
                                                   geneNumber : this.model.get('Number of genes'),
-                                                  sampleNumber : 'N/A',
+                                                  sampleNumber : 1,
                                                   noncodingNumber : this.model.get('Number of noncoding variants')}));
                       $sidebar.html(this.button);
                       $sidebar.append(new Box({name : 'Job Info', content: $content}).el);
@@ -93,7 +96,6 @@ define(['plugin/views/loader'],
                     $content.append(this.model.get('Job ID'));
                     this.$el.html(new Box({name : 'Job Info', content: $content}).el);
                     this.$el.append(new Box({name : 'Load', content: loaderView}).el);
-                    console.log(this.columnTypeCollection.el);
                     this.$el.append(new Box({name : 'Columns', content : this.columnTypeCollection}).el);
                   }
       });
@@ -130,16 +132,25 @@ var ColumnTypeCollection =  Backbone.View.extend({
       className : 'column-type-collection',
 
       initialize : function(){
-        this.model.on('change:headerConfig',this.render, this);
+        //this.model.on('change:headerConfig',this.render, this);
+        this.render();
             },
 
             render : function(){
-              var headerConfig = this.model.get('headerConfig');
+              //var headerConfig = this.model.get('headerConfig');
+              var headerConfig = this.model.categories;
+              
+              var shownHeaders = this.model.get('shownHeaders');
+
               for (var columnType in headerConfig){
                 //this.$el.append(new VisibilityButton({name: columnType}).el);
                 var columnViews = [];
-                for (var header in headerConfig[columnType]){
-                  if (headerConfig[columnType][header]){
+                //for (var header in headerConfig[columnType]){
+                for (var i = 0; i < headerConfig[columnType].length; i++){
+                  header = headerConfig[columnType][i];
+                  //console.log(shownHeaders);
+                  //console.log(headerConfig[columnType][i]);
+                  if (shownHeaders.indexOf(headerConfig[columnType][i]) > 0){
                     className = 'columnOption shown'
                   } else {
                     className = 'columnOption' 
@@ -149,7 +160,7 @@ var ColumnTypeCollection =  Backbone.View.extend({
                                   type : columnType,
                                   header : header,
                                   className : className,
-                                  shown : headerConfig[columnType][header],
+                                  shown : headerConfig[columnType][i],
                                   id : header + 'Option'}));
                 }
                 columnsCollectionView = new Columns({name: columnType, model : this.model, columns : columnViews});

@@ -6,8 +6,36 @@ define(['plugin/views/sidebar', 'plugin/lib/cytoscape', 'plugin/lib/nvd3_pie','p
 			initialize : function(){
 				this.loadIndicator();
 				this.sidebar = new Sidebar({model : this.model});
-				this.model.on('change:status', this.render, this);
-				this.model.on('change', this.changed, this);
+				//this.model.on('change:status', this.render, this);
+				//this.model.on('change', this.changed, this);
+				this.drawnChartIDs = [];
+				/*this.model.on('change:Circos data', this.drawCircosPlot, this);
+				this.model.on('change:Number of noncoding variants ', this.drawPieCharts, this);
+				this.model.on('change:Number of variants', this.drawPieCharts, this);
+				this.model.on('change:Sequence Ontologies ', this.drawPieCharts, this);
+				this.model.on('change:Sequence Ontologies ', this.drawPieCharts, this);
+				this.model.on('change:Top Genes (VEST-composite-p-value)', this.drawTable, this);*/
+				this.model.on('change', this.checkProgress, this);
+				//this.render();
+			},
+
+			checkProgress : function(){
+				if (Object.keys(this.model.attributes).length >= 11){
+					this.drawFigures();
+				}
+			},
+
+			drawFigures : function(){
+				this.render();
+				this.drawPieCharts();
+				this.drawTable();
+				this.drawCircosPlot();
+				this.updateButton();
+			},
+
+			updateButton : function(){
+				$('.nav-tabs button:eq(0)').removeClass('loading');
+				$('.nav-tabs button:eq(0)').addClass('loaded');
 			},
 
 
@@ -29,29 +57,97 @@ define(['plugin/views/sidebar', 'plugin/lib/cytoscape', 'plugin/lib/nvd3_pie','p
 									"<div id='CircosPlot' class='bordered'><h2>Circos Plot</h2><div id='Circos-Plot'>", '</div></div>',
 									'<div class="summaryTable"><h2>Top Genes</h2><table id=','"top-genes-table">','</table></div>',
 									'<div id="sigma"></div>',
-									'<div id="ndex" class="bordered"><h2>NDEX Networks</h2><div id="cy"></div></div>',
+									//'<div id="ndex" class="bordered"><h2>NDEX Networks</h2><div id="cy"></div></div>',
 								'</div>'].join(''));
 				this.$el.append($rightCell);
-
-				this.drawPieChart({data : this.convertToKeyValuePair({'Number of noncoding variants' : this.model.get('Number of noncoding variants'),
-																	'Number of variants' : this.model.get('Number of variants')}),
-									id : this.graphs['Pie Charts'][0],
-									title : 'Mutations'});
-
-				this.drawPieChart({data : this.convertToKeyValuePair(this.model.get('Cancer Genome Landscape')),
-									id : 'Cancer-Genome-Landscape',
-									title : 'Cancer Genome Landscape'});
-				
-				this.drawPieChart({data : this.convertToKeyValuePair(this.model.get('Sequence Ontologies')),
-									id : this.graphs['Pie Charts'][2],
-									title : 'Sequence Ontologies'});
+				//this.fetchNDEX();
+				/*
 				this.drawCircosPlot();
 				this.drawTable();
 				this.fetchNDEX();
 
 				$('.nav-tabs button:eq(0)').removeClass('loading');
-				$('.nav-tabs button:eq(0)').addClass('loaded');
+				$('.nav-tabs button:eq(0)').addClass('loaded');*/
 			},
+
+			drawPieCharts : function(){
+				console.log('Drawing pie charts');
+				var ID = this.graphs['Pie Charts'][0];
+				if (this.drawnChartIDs.indexOf(ID) < 0 && this.model.get('Number of noncoding variants') && this.model.get('Number of variants')){
+					this.drawPieChart({data : this.convertToKeyValuePair({'Number of noncoding variants' : this.model.get('Number of noncoding variants'),
+																	'Number of variants' : this.model.get('Number of variants')}),
+									id : ID,
+									title : 'Mutations'});
+					this.drawnChartIDs.push(ID);
+				}
+
+				ID = this.graphs['Pie Charts'][1];
+				if (this.drawnChartIDs.indexOf(ID) < 0 && this.model.get('Cancer Genome Landscape')){
+					this.drawPieChart({data : this.convertToKeyValuePair(this.model.get('Cancer Genome Landscape')),
+									id : ID,
+									title : 'Cancer Genome Landscape'});
+					this.drawnChartIDs.push(ID);
+				}
+
+				ID = this.graphs['Pie Charts'][2];
+				if (this.drawnChartIDs.indexOf(ID) < 0 && this.model.get('Sequence Ontologies')){
+					this.drawPieChart({data : this.convertToKeyValuePair(this.model.get('Sequence Ontologies')),
+									id : ID,
+									title : 'Sequence Ontologies'});
+					this.drawnChartIDs.push(ID);
+				}
+			},
+
+
+			drawPieChart : function(params){
+				console.log('Drawing pie chart!');
+
+				var ID = params.id;
+				var data = params.data;
+				var title = params.title;
+				//var myColors = ["#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"];
+				var colorScale = d3.scale.ordinal().range(["#ffd400", "#f28d00", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"]).range();
+				if (ID == 'Sequence-Ontologies'){
+					//myColors = myColors.reverse();
+					 //var myColors = ["#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"];
+					 var colorScale = d3.scale.ordinal().range(["#dd186d", "#bcbd22", "#17becf"]).range();
+				} else if (ID == 'Cancer-Genome-Landscape'){
+					//var myColors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"];
+					//myColors = myColors.splice(0, parseInt(myColors.length/2));
+					var colorScale = d3.scale.ordinal().range(["#00bc09", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"]).range();
+				} 
+
+				// var colorScale = d3.scale.ordinal().range(myColors);
+				//colorScale = d3.scale.category10();
+				// var colorScale = d3.scale.ordinal().range(d3.schemeCategory10);
+				//var colorScale = d3.scale.ordinal().range(["#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"]).range();
+				var height = 300;
+				var width = 300;
+		 		nv.addGraph(function() {
+              		var chart = nv.models.pieChart()
+                  		.x(function(d) { return d.label })
+                  		.y(function(d) { return d.value })
+		                  .showLabels(true).color(colorScale)
+		                  .width(width)
+		                  .height(height);
+
+		                d3.select('#' + ID + ' svg')
+		                    .datum(data)
+		                  .transition().duration(1200)
+		                    .call(chart);
+
+		                d3.select('#' + ID + ' svg')
+		                	.append("text")
+		                	.attr("x", 150)             
+		  					.attr("y", height * .99)
+		  					.attr("text-anchor", "middle")  
+		  					.style("font-weight","bold")
+		  					.style("font-size","15px")
+		  					.text(title);
+
+              		return chart;
+              });
+		 	},
 
 			fetchNDEX : function(){
 				console.log('Creating NDEX');
@@ -134,12 +230,12 @@ define(['plugin/views/sidebar', 'plugin/lib/cytoscape', 'plugin/lib/nvd3_pie','p
 				console.log('Contains ' + edges.length + ' edges');
 				console.log('Contains ' + nodes.length + ' nodes');
 
-				sigma.parsers.json(dataNDEX, {
+				/*sigma.parsers.json(dataNDEX, {
 				    container: 'sigma',
 				    settings: {
 				      defaultNodeColor: '#ec5148'
 				    }
-				  });
+				  });*/
 
 				var cy = cytoscape({
 
@@ -239,18 +335,20 @@ define(['plugin/views/sidebar', 'plugin/lib/cytoscape', 'plugin/lib/nvd3_pie','p
 			},
 
 			drawTable : function(){
-				var data = this.model.get('Top Genes (VEST-composite-p-value)');
-				data = this.dataTableFormat(data);
-				header = data.shift();
 				this.dataTable = $('#top-genes-table');
-				this.dataTable.DataTable({
-					data : data,
-					columns : this.formatToDataTableHeader(header),
-					searching : false,
-					paging: false,
-					'scrollX': false
-				});
-				this.dataTable.DataTable().draw();
+				if (!$.fn.DataTable.isDataTable(this.dataTable)){
+					var data = this.model.get('Top Genes (VEST-composite-p-value)');
+					data = this.dataTableFormat(data);
+					header = data.shift();
+					this.dataTable.DataTable({
+						data : data,
+						columns : this.formatToDataTableHeader(header),
+						searching : false,
+						paging: false,
+						'scrollX': false
+					});
+					this.dataTable.DataTable().draw();
+				}
 			},
 
 			formatToDataTableHeader : function(header){
@@ -378,7 +476,9 @@ define(['plugin/views/sidebar', 'plugin/lib/cytoscape', 'plugin/lib/nvd3_pie','p
 			},
 
 			drawCircosPlot : function(){
-				var data = this.formatCircosData(this.transform());
+				var data = this.model.get('Circos data');
+				console.log('Drawing circos plot');
+				//var data = this.formatCircosData(this.transform());
 			
 				  backgrounds = [[],[],[],[]];
 				  histograms = [[],[],[],[]];
@@ -411,7 +511,7 @@ define(['plugin/views/sidebar', 'plugin/lib/cytoscape', 'plugin/lib/nvd3_pie','p
 				     ["4" , 1351857]
 				  ];
 
-				  BioCircos01 = new BioCircos(backgrounds[0],backgrounds[1],backgrounds[2],backgrounds[3],histograms[0],histograms[1],histograms[2],histograms[3],this.chromosomes,{
+				  BioCircos01 = new BioCircos(backgrounds[0],backgrounds[1],backgrounds[2],backgrounds[3],histograms[0],histograms[1],histograms[2],histograms[3],chromosomes,{
 				     target : "Circos-Plot",
 				     svgWidth : 600,
 				     svgHeight : 600,
@@ -499,42 +599,6 @@ define(['plugin/views/sidebar', 'plugin/lib/cytoscape', 'plugin/lib/nvd3_pie','p
 				  BioCircos01.draw_genome(BioCircos01.genomeLength);
 			},
 
-
-			drawPieChart : function(params){
-				
-
-				var ID = params.id;
-				var data = params.data;
-				var title = params.title;
-				
-
-				var height = 300;
-				var width = 300;
-		 		nv.addGraph(function() {
-              		var chart = nv.models.pieChart()
-                  		.x(function(d) { return d.label })
-                  		.y(function(d) { return d.value })
-		                  .showLabels(true)
-		                  .width(width)
-		                  .height(height);
-
-		                d3.select('#' + ID + ' svg')
-		                    .datum(data)
-		                  .transition().duration(1200)
-		                    .call(chart);
-
-		                d3.select('#' + ID + ' svg')
-		                	.append("text")
-		                	.attr("x", 150)             
-		  					.attr("y", height * .99)
-		  					.attr("text-anchor", "middle")  
-		  					.style("font-weight","bold")
-		  					.style("font-size","15px")
-		  					.text(title);
-
-              	return chart;
-            	});
-		 	},
 
 		 	convertToKeyValuePair : function(data){
 				nv_input = [];

@@ -10,6 +10,8 @@
     root            = h.url_for( "/" )
     app_root        = root + "plugins/visualizations/craviz/static/js"
     repository_root = root + "plugins/visualizations/craviz/static/"
+
+    hdadict = trans.security.encode_dict_ids( hda.to_dict() )
 %>
 
 
@@ -18,14 +20,11 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <title>${hda.name | h} | ${visualization_name}</title>
-
         ${h.js( 'libs/jquery/jquery',
                 'libs/jquery/jquery-ui')}
 
         <link rel="stylesheet" type="text/css" href="${repository_root}/css/datatables.css"/>
         <script type="text/javascript" src="${app_root}/lib/datatables.js"></script>
-        <script type="text/javascript" src="${app_root}/lib/sigma.js-1.2.1/src/sigma.core.js"></script>
-        <script type="text/javascript" src="${app_root}/lib/sigma.js-1.2.1/plugins/sigma.parsers.json/sigma.parsers.json.js"></script>
 
 
         ${h.js( 'libs/jquery/select2',
@@ -38,20 +37,15 @@
         ${h.stylesheet_link( repository_root + "/css/style.css" )}
         ${h.stylesheet_link( repository_root + "/css/datatables.min.css" )}
 
-
-
     </head>
     <body>
-
         <div class="chart-header">
-            ${title or default_title}
+            <b>${default_title}</b>
         </div>
 
         <div id="container">
-
-
-
         </div>
+
 
         <script type="text/javascript">
             var app_root = '${app_root}';
@@ -85,14 +79,23 @@
             });
 
             $(function() {
+                console.log('Initializing app');
                 require( [ 'plugin/app' ], function( App ) {
-                    var config = ${ h.dumps( config ) };
-                    var app = new App({
-                        dataset_id  : config.dataset_id});;
+                    var app = new App({dataset_hid : '${hdadict["hid"]}',
+                          peek : '${hdadict["peek"]}',
+                          dataset_id : '${hdadict["id"]}',
+                          history_id : '${hdadict["history_id"]}',
+                          report_name : '${hdadict["name"]}'.replace(/CRAVAT: ([\w- ]+?)( Report)? on .*/, '$1'),
+                          report_names : {'Gene Level Annotation' : 'Gene',
+                                            'Variant' : 'Variant', 
+                                            'Non-coding Variant' :'Noncoding', 
+                                            'Errors' : 'Error'}});
                     $('body').append(app.$el);
                     //$('body').append(app.footer);
                 });
             });
+
+
         </script>
     </body>
 </html>

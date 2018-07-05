@@ -10,26 +10,16 @@ define([],
 				headerConfig : {},
 				'Sorting data' : [],
 				Filters : {},
-				'Sorted data' : []
+				'Sorted data' : [],
+				'All headers' : []
 			},
-
-
-			headerTypes : {'Variant Info' : ['Input line','ID','Chromosome','Position','Strand','Reference base(s)','Alternate base(s)','Sample ID','HUGO symbol','dbSNP', 'Variant Impact'],
-							'Protein' : ['Peptide'],
-							'Structure' : ['Protein 3D variant'],
-							'Variant Impact' : ['Sequence ontology','Protein sequence change','S.O. transcript','S.O. all transcripts','HGVS Genomic','HGVS Protein','HGVS Protein All'],
-							'CHASM' : ['CHASM p-value','CHASM FDR','CHASM transcript','CHASM score','All transcripts CHASM results'],
-							'VEST' : ['VEST p-value','VEST FDR','VEST score transcript','VEST score (missense)','VEST score (frameshift indels)','VEST score (inframe indels)','VEST score (stop-gain)','VEST score (stop-loss)','VEST score (splice site)','All transcripts VEST results'],
-							'Disease Association' : ['CGL driver class','TARGET','COSMIC ID','COSMIC variant count (tissue)','COSMIC variant count','COSMIC transcript','COSMIC protein change','PubMed article count','PubMed search term','ClinVar','ClinVar disease identifier','ClinVar XRef','CGC driver class','CGC inheritance','CGC tumor types somatic','CGC tumor types germline','GWAS NHLBI Key (GRASP)','GWAS PMID (GRASP)','GWAS Phenotype (GRASP)'],
-							'Population Stats' : ['1000 Genomes AF','ESP6500 AF (average)','ESP6500 AF (European American)','ESP6500 AF (African American)','gnomAD AF Total','gnomAD AF African','gnomAD AF American','gnomAD AF Ashkenazi Jewish','gnomAD AF East Asian','gnomAD AF Finnish','gnomAD AF Non-Finnish European','gnomAD AF Other','gnomAD AF South Asian'],
-							'Study' : ['Number of samples with variant']},
 
 
 			initialize : function(params){
 				this.name = params.name;
 				this.exceedsLimit = false;
 				//this.shownHeaders = params.headers;
-				this.allHeaders = [];
+				this.categories = params.categories || [];
 				this.filters = [];
 				//this.filterColumns = ['Chromosome', 'Sample ID', 'COSMIC variant count (tissue)', '1000 Genomes AF'];
 				this.filterColumns = [{name : 'Chromosome', categorical : true},
@@ -77,7 +67,7 @@ define([],
 				this.set('Sorted data', filteredData);
 			},
 
-			getColumns : function(headers){
+			old_getColumns : function(headers){
 				data = this.get('data');
 				columns = {};
 				var indices = [];
@@ -105,7 +95,17 @@ define([],
 
 			//fetchData : function
 
-			setData : function(data){
+			setData : function(id){
+				var allHeaders = this.get('All headers');
+				if (allHeaders.indexOf('$%$') > 0){
+					allHeaders = allHeaders.split('$%$');
+				}
+				this.id = id;
+				this.set('headerConfig', this.formatHeaderConfig(allHeaders));
+				this.set('ID', id);
+			},
+
+			oldsetData : function(data){
 				console.log('setting data for ' + this.name);
 				/*this.ID = datasetID;
 				this.commentLines = 11;
@@ -141,6 +141,7 @@ define([],
 				view.set('data',data);
 			},
 
+
 			mapToArray : function(data){
 				for (header in data){
 
@@ -155,6 +156,10 @@ define([],
 				this.set('headerConfig', this.formatHeaderConfig(this.allHeaders));
 				this.fillOutEndData();
 				this.getUniqueValues();
+			},
+
+			setTestTable : function(){
+				this.set('data', 'TEST');
 			},
 
 			getUniqueValues : function(){
@@ -216,9 +221,10 @@ define([],
 			},
 
 			columnVisibility : function(){
-				colVisibility = [];
-				for (var i = 0; i < this.allHeaders.length; i++){
-					if (this.get('shownHeaders').indexOf(this.allHeaders[i]) >= 0){
+				var colVisibility = [];
+				var allHeaders = this.get('All headers');
+				for (var i = 0; i < allHeaders.length; i++){
+					if (this.get('shownHeaders').indexOf(allHeaders[i]) >= 0){
 						colVisibility.push(true);
 					} else {
 						colVisibility.push(false);
@@ -228,9 +234,10 @@ define([],
 			},
 
 			fillOutEndData : function(){
+				var allHeaders = this.get('All headers');
 				for (var i = 0; i < this.data.length; i++){
-					if (this.allHeaders){
-						while(this.allHeaders.length > this.data[i].length){
+					if (allHeaders){
+						while(allHeaders.length > this.data[i].length){
 							this.data[i].push('');
 						}
 					}
