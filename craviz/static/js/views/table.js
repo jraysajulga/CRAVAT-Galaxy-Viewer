@@ -134,7 +134,7 @@ define([],
 				sorting_index = allHeaders.indexOf('VEST p-value') >= 0 ? allHeaders.indexOf('VEST p-value') : 0;
 
 
-                this.dataTable.DataTable( {
+                var oTable = this.dataTable.DataTable( {
                     "ajax": {
                         "url": '/api/datasets/' + this.model.get('ID'),
                         //"url" : 'templates/arrays.txt',
@@ -165,16 +165,16 @@ define([],
 	                    },
                     },
                     deferRender:    true,
-		            scrollCollapse: true,
+		            //scrollCollapse: true,
 		            scroller:       true,
 		            select : true,
 		            "order": [[sorting_index, "asc"]],
-		            scrollX: '100%',
+		            "sScrollX" : "100%",
+		            //scrollX: '100%',
+		            //'scrollX': true,
 		            "processing": true,
-		            scrollY:        200, // This one
 		            'bAutoWidth': false,
 		            'bPaginate': true,
-		            'scrollX': true,
                     /*"bProcessing": true,
                     deferRender: true,
                     //"bServerSide": true,
@@ -233,10 +233,10 @@ define([],
 						        	}
 						        }
 							}
-							return variant;
-							/*return type === 'display' && data.length > limit ?
-						        data.substr( 0, limit - 3 ) +'…' :
-						        data;*/
+							//return variant;
+							return type === 'display' && variant.length > limit ?
+						        variant.substr( 0, limit - 3 ) +'…' :
+						        variant;
 						    }
 						},
 					],
@@ -255,16 +255,25 @@ define([],
 						if ($(view.dataTable.DataTable().column( 2 ).header()).html() == 'Chromosome'){
 							$(view.dataTable.DataTable().column( 2 ).header()).html('Chromo<br />some');
 						}
+
+						if (!!window.webkitURL){
+							view.fixHeaderWidth();
+							//setTimeout( function() {
+								//console.log(oTable);
+								//oTable.fnAdjustColumnSizing();
+							//}, 10);
+						}
+
+						$(window).bind('resize', function () {
+							//console.log(oTable);
+							view.fixHeaderWidth();
+							//view.dataTable.DataTable().fnAdjustColumnSizing();
+							//console.log(view.dataTable.DataTable());
+						});
+
+						
 					}
                 } );
-
-				if (!!window.webkitURL){
-					console.log('Adjusting!');
-					setTimeout( function() {
-						oTable.fnAdjustColumnSizing()
-					}, 10);
-				}
-
 
 				//$($.fn.dataTable.tables(true)).DataTable().columns.adjust();
 
@@ -296,6 +305,17 @@ define([],
 				this.firstRun = true;
 			},
 
+			fixHeaderWidth : function(){
+				console.log('Fixing header width');
+				var children = $('#' + this.name + ' > tbody > tr.odd.selected').children();
+				var totalWidth = 0;
+				for (var i = 0; i < children.length; i++){
+					totalWidth += children[i].offsetWidth;
+				}
+				$('#' + this.name + '_wrapper > div.dataTables_scroll > div.dataTables_scrollHead > div > table').css('min-width', totalWidth + 'px');
+				$('#' + this.name + '_wrapper > div.dataTables_scroll > div.dataTables_scrollHead > div > table').css('width', '100%');
+			},
+
 			refreshHeaders : function(){
 				var targetVisibility = this.dataTable.DataTable().columns().visible();
 				var currentVisibility = this.model.columnVisibility();
@@ -306,12 +326,14 @@ define([],
 						col.visible(!col.visible()[0]);
 					}
 				}
+				this.draw();
 			},
 
 			draw : function(){
 				if ($.fn.DataTable.isDataTable(this.dataTable)){
 					this.dataTable.DataTable().draw();
-					this.dataTable.DataTable().columns.adjust();
+					this.fixHeaderWidth();
+					//this.dataTable.DataTable().columns.adjust();
 				}
 			},
 
@@ -393,6 +415,8 @@ define([],
 
 			displayColumns : function(new_headers){
 				var all_headers = this.headers;
+				console.log(new_headers);
+				console.log(all_headers);
 				// If this header is not within the new header config, then hide it.
 				var header;
 				for (var i = 0; i < all_headers.length; i++){
