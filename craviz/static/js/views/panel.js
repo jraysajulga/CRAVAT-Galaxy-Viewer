@@ -19,7 +19,8 @@ define(['plugin/views/sidebar', 'plugin/views/table'],
 
 				this.loadIndicator();
 
-				this.model.on('change:data', this.loadTable, this);
+				//this.model.on('change:data', this.loadTable, this);
+				this.model.on('change:ID', this.loadTable, this);
 				this.model.on('change:Unique values', this.renderSidebarLoader,this);
 				this.firstRun = true;
 			},
@@ -56,10 +57,10 @@ define(['plugin/views/sidebar', 'plugin/views/table'],
 					this.$el.append(this.dataTable.el);
 				}
 				if (this.frameViewer) {
-					this.dataTable.$el.append("<div class='frame'><iframe id='variantviewer'></iframe></div>");
+					//this.dataTable.$el.append("<div class='frame'><iframe id='variantviewer'></iframe></div>");
 				} 
 				this.updateButton();
-				this.dataTable.loadTable();
+				this.dataTable.loadTable(this.model.get('ID'));
 			},
 
 			updateButton : function(){

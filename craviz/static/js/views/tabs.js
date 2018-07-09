@@ -8,16 +8,21 @@ define([],
 			initialize: function(options){
 				this.tabNames = ['Summary', 'Gene', 'Variant', 'Noncoding', 'Error'];
 				this.panels = options.panels;
+				this.index = options.index + 1;
 				this.render();
-
 			},
 
-			render: function(){
-				//this.$el.html(this.template({tab1:this.tabNames[0], tab2: this.tabNames[1], tab3: this.tabNames[2], tab4: this.tabNames[3], tab5: this.tabNames[4]}))
-				for (var i = 0; i < this.tabNames.length; i++){
-					this.$el.append(new TabButton({name: this.tabNames[i], panel: this.panels[i]}).el);
-				}
 
+			render: function(){
+
+				//this.$el.html(this.template({tab1:this.tabNames[0], tab2: this.tabNames[1], tab3: this.tabNames[2], tab4: this.tabNames[3], tab5: this.tabNames[4]}))
+				var button;
+				for (var i = 0; i < this.tabNames.length; i++){
+					button = new TabButton({name: this.tabNames[i], panel: this.panels[i]});
+					this.$el.append(button.el);
+				}
+				//this.setDefault(2);
+				//$('.nav-tabs button:eq(' + this.index + ')').click();
 			}
 		});
 	});
