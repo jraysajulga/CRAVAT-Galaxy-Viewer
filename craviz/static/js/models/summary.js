@@ -131,24 +131,26 @@ define([],
 								pos_data = chrom_data.filter(function(a){
 									return start <= a['Position'] && a['Position'] < end;
 								})
-								if (pos_data.length > 0){
-									val = pos_data.length;
-									for (var y = 0; y < val; y++){
-										des += pos_data[y]['HUGO symbol'] + ',';
+								val = pos_data.length;
+								des = val == 0 ? "" : des;
+								for (var y = 0; y < val; y++){
+									des += pos_data[y]['HUGO symbol'] + ',';
+									if (y == val - 1){
+										des = des.slice(0,-1) + ')';
 									}
-									des = des.slice(0,-1) + ')';
+								}
 
-									datum = {chr: pos_data[0]['Chromosome'].replace('chr',''),
-											start: String(start),
-											end: String(end),
-											name: des,
-											value: String(val)};
+								//datum = {chr: pos_data[0]['Chromosome'].replace('chr',''),
+								datum = {chr: chromosome,
+										start: String(start),
+										end: String(end),
+										name: des,
+										value: String(val)};
 
-									if (circos_data[SOtypes[i]]){
-										circos_data[SOtypes[i]].push(datum);
-									} else {
-										circos_data[SOtypes[i]] = [datum];
-									}
+								if (circos_data[SOtypes[i]]){
+									circos_data[SOtypes[i]].push(datum);
+								} else {
+									circos_data[SOtypes[i]] = [datum];
 								}
 							}
 						}

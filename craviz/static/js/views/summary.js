@@ -483,7 +483,7 @@ define(['plugin/views/sidebar', 'plugin/lib/cytoscape', 'plugin/lib/nvd3_pie','p
 				  backgrounds = [[],[],[],[]];
 				  histograms = [[],[],[],[]];
 				  var radii = [[205, 240], [160,195], [110, 145], [55,90]];
-				  colors = ['#FF6666','#FFCCCC','#0099CC','#42f46b'];
+				  colors = ['#FF6666','#0099CC','#FFCCCC','#42f46b'];
 				  var SO = Object.keys(data);
 				  for (var i = 0; i < SO.length; i++){
 				  	histograms[i] = [ 'HISTOGRAM0' + (i + 1) , {
@@ -500,6 +500,7 @@ define(['plugin/views/sidebar', 'plugin/lib/cytoscape', 'plugin/lib/nvd3_pie','p
 					    BgborderSize : 0.5
 				  	}]
 				  }
+				  console.log(histograms);
 				  	//histograms[1] = [];
 
 				  var BioCircosGenome = [
@@ -510,6 +511,7 @@ define(['plugin/views/sidebar', 'plugin/lib/cytoscape', 'plugin/lib/nvd3_pie','p
 				     ["X" , 22422827],
 				     ["4" , 1351857]
 				  ];
+
 
 				  BioCircos01 = new BioCircos(backgrounds[0],backgrounds[1],backgrounds[2],backgrounds[3],histograms[0],histograms[1],histograms[2],histograms[3],chromosomes,{
 				     target : "Circos-Plot",
