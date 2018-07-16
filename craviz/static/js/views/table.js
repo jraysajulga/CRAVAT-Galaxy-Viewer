@@ -105,6 +105,7 @@ define([],
 		            data.push( [ i, i, i, i, i ] );
 		        }
 
+		        // Functions for sorting without including blank cells
 		        jQuery.fn.dataTableExt.oSort['mystring-asc'] = function(x,y) {
 					var retVal;
 					x = $.trim(x);
@@ -203,13 +204,13 @@ define([],
 					 	"type" : "mystring",
 						render: function ( data, type, row ) {
 							var limit = 8;
+							var n = 3;
 							var output = data;
 							var re = new RegExp('[A-Z]+');
 							var m;
 							var index = row.indexOf(data);
-							var positions = [];
-							var position;
-							var variant = output;
+							var variant = data;
+				
 							if (type === 'display'){
 								/*output = data.length > limit ?
 									data.substr( 0, limit - 3 ) +'…' :
@@ -219,25 +220,23 @@ define([],
 						        	// Account for large insertions and deletions
 						        	reference = row[12];
 						        	variant = row[13];
-						        	for (var i = 0; i < variant.length; i++){
-						        		if (variant[i] != reference[i]){
-						        			positions.push(i);
-						        		}
-						        	}
-						        	positions = positions.sort(function(a,b){
-						        		return a < b;
-						        	});
-						        	for (var i = 0; i < positions.length; i++){
-						        		position = positions[i];
-						        		variant = variant.slice(0,position) + '<font color="#ff5151"><b>' + variant.slice(position, position+1) + '</b></font>' + variant.slice(position+1,variant.length);
-						        	}
+						        	variant = view.highlight_mutated_amino_acid(reference, variant, limit);
+						        	return variant
 						        }
 							}
+
 							//return variant;
-							return type === 'display' && variant.length > limit ?
+							if (type === 'display' && variant.length > limit){
+								variant = variant.substr( 0, limit);
+								return variant + '...';
+							} else{
+								return variant;
+							}
+						  }
+							/*return type === 'display' && datalen > limit ?
 						        variant.substr( 0, limit - 3 ) +'…' :
 						        variant;
-						    }
+						    }*/
 						},
 					],
 
@@ -258,17 +257,10 @@ define([],
 
 						if (!!window.webkitURL){
 							view.fixHeaderWidth();
-							//setTimeout( function() {
-								//console.log(oTable);
-								//oTable.fnAdjustColumnSizing();
-							//}, 10);
 						}
 
 						$(window).bind('resize', function () {
-							//console.log(oTable);
 							view.fixHeaderWidth();
-							//view.dataTable.DataTable().fnAdjustColumnSizing();
-							//console.log(view.dataTable.DataTable());
 						});
 
 						
@@ -293,8 +285,10 @@ define([],
 					view.dataTable.DataTable().cells('.selected').deselect();
 					view.dataTable.DataTable().cell( this ).select();
 					var datum = $(this).html();
-					if (datum.indexOf('<') < 0){
-						datum = view.dataTable.DataTable().cell( this ).data();
+					if (view.dataTable.DataTable().cell( this ).index().column == 13){
+						variant_peptide = view.dataTable.DataTable().cell( this ).data();
+						reference_peptide = view.dataTable.DataTable().row(view.dataTable.DataTable().cell( this ).index().row).data()[12];
+						datum = view.highlight_mutated_amino_acid(reference_peptide, variant_peptide, 100);
 					}
 					view.$selectedPanel.html(datum);
 				});
@@ -304,6 +298,48 @@ define([],
 				}
 				this.firstRun = true;
 			},
+
+			highlight_mutated_amino_acid : function(reference, variant, limit){
+				var positions = [];
+				var pos;
+				var variable = '<%= varAA %>';
+				var front_tag = '<span style="color:#ff5151;font-weight:bold;">';
+				var back_tag = '</span>';
+				var template = front_tag + variable + back_tag;
+				var replacement = 'N'
+				var data_length;
+				var tpl = _.template(template);
+				var n = 3;
+				var displayed_variant = variant;
+
+	        	data_length = variant.length
+	        	for (var i = 0; i < variant.length; i++){
+	        		if (variant[i] != reference[i]){
+	        			positions.push(i);
+	        		}
+	        	}
+	        	positions = positions.sort(function(a,b){
+	        		return a < b;
+	        	});
+	        	var adjuster = 0;
+	        	for (var i = 0; i < positions.length; i++){
+	        		pos = positions[i];
+	        		//variant = variant.slice(0,position) + '<font color="#ff5151"><b>' + variant.slice(position, position+1) + '</b></font>' + variant.slice(position+1,variant.length);
+	        		replacement = variant.slice(pos, pos+1)
+	        		//datalen = template.length  + replacement.length - variable.length;
+	        		if (pos < limit){ // If the mutated position is within the limit...
+	        			displayed_variant = variant.slice(0,pos) + tpl({varAA: replacement}) + variant.slice(pos+1,limit);
+	        		} else {
+	        			displayed_variant = variant.slice(0,limit)
+	        		}
+	        	}
+	        	if (limit < variant.length){
+    				displayed_variant += '...';
+    			}
+	        	return displayed_variant;
+			},
+
+
 
 			fixHeaderWidth : function(){
 				console.log('Fixing header width');
@@ -415,8 +451,6 @@ define([],
 
 			displayColumns : function(new_headers){
 				var all_headers = this.headers;
-				console.log(new_headers);
-				console.log(all_headers);
 				// If this header is not within the new header config, then hide it.
 				var header;
 				for (var i = 0; i < all_headers.length; i++){

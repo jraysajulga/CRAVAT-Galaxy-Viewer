@@ -337,6 +337,34 @@ define(['plugin/views/sidebar', 'plugin/lib/cytoscape', 'plugin/lib/nvd3_pie','p
 			drawTable : function(){
 				this.dataTable = $('#top-genes-table');
 				if (!$.fn.DataTable.isDataTable(this.dataTable)){
+					// Functions for sorting without including blank cells
+			        jQuery.fn.dataTableExt.oSort['mystring-asc'] = function(x,y) {
+						var retVal;
+						x = $.trim(x);
+						y = $.trim(y);
+
+						if (x==y) retVal= 0;
+						else if (x == "" || x == " ") retVal= 1;
+						else if (y == "" || y == " ") retVal= -1;
+						else if (x > y) retVal= 1;
+						else retVal = -1; // <- this was missing in version 1
+
+						return retVal;
+					}
+					jQuery.fn.dataTableExt.oSort['mystring-desc'] = function(y,x) {
+						var retVal;
+						x = $.trim(x);
+						y = $.trim(y);
+
+						if (x==y) retVal= 0; 
+						else if (x == "" || x == " ") retVal= -1;
+						else if (y == "" || y == " ") retVal= 1;
+						else if (x > y) retVal= 1;
+						else retVal = -1; // <- this was missing in version 1
+
+						return retVal;
+					}
+
 					var data = this.model.get('Top Genes (VEST-composite-p-value)');
 					data = this.dataTableFormat(data);
 					header = data.shift();
@@ -345,6 +373,7 @@ define(['plugin/views/sidebar', 'plugin/lib/cytoscape', 'plugin/lib/nvd3_pie','p
 						columns : this.formatToDataTableHeader(header),
 						searching : false,
 						paging: false,
+						"order": [[1, "asc"]],
 						'scrollX': false
 					});
 					this.dataTable.DataTable().draw();
