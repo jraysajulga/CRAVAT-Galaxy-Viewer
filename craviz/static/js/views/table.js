@@ -134,7 +134,6 @@ define([],
 				}
 				sorting_index = allHeaders.indexOf('VEST p-value') >= 0 ? allHeaders.indexOf('VEST p-value') : 0;
 
-
                 var oTable = this.dataTable.DataTable( {
                     "ajax": {
                         "url": '/api/datasets/' + this.model.get('ID'),
@@ -216,10 +215,10 @@ define([],
 									data.substr( 0, limit - 3 ) +'…' :
 						        	data;*/
 						        m = data.match(re);
-						        if (m && index == 13){
+						        if (m && index == view.model.get('All headers').indexOf('Variant peptide')){
 						        	// Account for large insertions and deletions
-						        	reference = row[12];
-						        	variant = row[13];
+						        	reference = row[view.model.get('All headers').indexOf('Reference peptide')];
+						        	variant = row[view.model.get('All headers').indexOf('Variant peptide')];
 						        	variant = view.highlight_mutated_amino_acid(reference, variant, limit);
 						        	return variant
 						        }
@@ -336,6 +335,8 @@ define([],
 	        	if (limit < variant.length){
     				displayed_variant += '...';
     			}
+    			console.log('MUTATED!');
+    			console.log(displayed_variant);
 	        	return displayed_variant;
 			},
 

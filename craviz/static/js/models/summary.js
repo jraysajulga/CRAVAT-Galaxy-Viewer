@@ -323,7 +323,6 @@ define([],
 				topValues.sort(function(a,b){
 					return b[Object.keys(b)[1]] - a[Object.keys(a)[1]];
 				})
-				console.log(topValues);
 				view.set('Top Genes (VEST-composite-p-value)', topValues.splice(0,10));
 			}
 
