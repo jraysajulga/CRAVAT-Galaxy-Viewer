@@ -284,9 +284,9 @@ define([],
 					view.dataTable.DataTable().cells('.selected').deselect();
 					view.dataTable.DataTable().cell( this ).select();
 					var datum = $(this).html();
-					if (view.dataTable.DataTable().cell( this ).index().column == 13){
+					if (view.dataTable.DataTable().cell( this ).index().column == view.model.get('All headers').indexOf('Variant peptide')){
 						variant_peptide = view.dataTable.DataTable().cell( this ).data();
-						reference_peptide = view.dataTable.DataTable().row(view.dataTable.DataTable().cell( this ).index().row).data()[12];
+						reference_peptide = view.dataTable.DataTable().row(view.dataTable.DataTable().cell( this ).index().row).data()[view.model.get('All headers').indexOf('Reference peptide')];
 						datum = view.highlight_mutated_amino_acid(reference_peptide, variant_peptide, 100);
 					}
 					view.$selectedPanel.html(datum);
@@ -335,8 +335,6 @@ define([],
 	        	if (limit < variant.length){
     				displayed_variant += '...';
     			}
-    			console.log('MUTATED!');
-    			console.log(displayed_variant);
 	        	return displayed_variant;
 			},
 
