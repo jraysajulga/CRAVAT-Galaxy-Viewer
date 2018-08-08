@@ -1,7 +1,7 @@
 /**
  *  Main application class.
  */
-define(['plugin/viewer'],
+define(['viewer'],
     function(ContentView, Portlet) {
     return Backbone.View.extend({
         

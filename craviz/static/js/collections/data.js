@@ -103,7 +103,7 @@ define ([''],
                         	xhr.dataset.setData(xhr.id);
 
 							if (xhr.dataset.name == 'Variant'){
-	                        	var indices = []
+	                        	var indices = [];
 	                        	var gene_headers = ['ID', 'Chromosome', 'Position', 'Sequence ontology', 'Protein sequence change', 'CHASM p-value', 'VEST p-value', 'Reference base(s)', 'Alternate base(s)'];
 	                        	for (var i = 0; i < headers.length; i++){
 	                        		if (gene_headers.indexOf(headers[i]) >= 0){

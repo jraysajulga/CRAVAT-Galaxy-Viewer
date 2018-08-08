@@ -242,7 +242,6 @@ define([],
 					'drawCallback': function( settings ) {
 						$(".dataTables_scrollHeadInner").css({"width":"100%"});
 						$(".dataTables_scrollBody ").css({"width":"100%"});
-						console.log('Callign back draww');
 					},
 
                     'initComplete': function(settings, json) {
@@ -280,6 +279,7 @@ define([],
 						//view.loadGeneTable(row_data);
 					});
 				}
+				// 
 				$('#' + this.name + ' tbody').on('click', 'td', function () {
 					view.dataTable.DataTable().cells('.selected').deselect();
 					view.dataTable.DataTable().cell( this ).select();

@@ -361,8 +361,11 @@ html{
 
 #pie-charts{
 	min-width:1020px;
+	width: 90%;
 	float:left;
 	height:360px;
+	display: flex;
+	justify-content: space-between;
 
 }
 
@@ -386,7 +389,6 @@ html{
 	float:left;
 	height: 100%;
 	overflow:scroll;
-	padding-bottom:100px;
 	display: table-cell;
 }
 

@@ -1,4 +1,4 @@
-define(['plugin/views/loader'],
+define(['views/loader'],
       function(Loader){
             return Backbone.View.extend({
 

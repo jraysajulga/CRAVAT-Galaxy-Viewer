@@ -7,9 +7,11 @@
     # optionally bootstrap data from dprov
     data = list( hda.datatype.dataset_column_dataprovider( hda, limit=20 ) )
 
-    root            = h.url_for( "/" )
+    root            = h.url_for( "/static/" )
     app_root        = root + "plugins/visualizations/craviz/static/js"
-    repository_root = root + "plugins/visualizations/craviz/static/"
+    repository_root = root + "plugins/visualizations/craviz/static"
+    app_root = 'static/js'
+    repository_root = 'static'
 
     hdadict = trans.security.encode_dict_ids( hda.to_dict() )
 %>
@@ -28,7 +30,7 @@
 
 
         ${h.js( 'libs/jquery/select2',
-                'libs/bootstrap',
+                'libs/bootstrap-tour',
                 'libs/underscore',
                 'libs/backbone',
                 'libs/d3',
@@ -65,9 +67,10 @@
                 assert  : function(){}
             };
             require.config({
-                baseUrl: Galaxy.root + "static/scripts/",
+                //baseUrl: Galaxy.root + "static/scripts/",
+                baseUrl: 'static/js',
                 paths: {
-                    "plugin"        : "${app_root}",
+                    "plugin"        : "",
                     "d3"            : "libs/d3",
                     "repository"    : "${repository_root}"
                 },
@@ -80,7 +83,7 @@
 
             $(function() {
                 console.log('Initializing app');
-                require( [ 'plugin/app' ], function( App ) {
+                require( [ 'app' ], function( App ) {
                     var app = new App({dataset_hid : '${hdadict["hid"]}',
                           peek : '${hdadict["peek"]}',
                           dataset_id : '${hdadict["id"]}',

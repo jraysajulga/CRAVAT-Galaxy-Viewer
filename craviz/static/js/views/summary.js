@@ -1,4 +1,4 @@
-define(['plugin/views/sidebar', 'plugin/lib/cytoscape', 'plugin/lib/nvd3_pie','plugin/lib/biocircos-1.1.2'],
+define(['views/sidebar', 'lib/cytoscape', 'lib/nvd3_pie','lib/biocircos-1.1.2'],
 	function(Sidebar, cytoscape){
 		return Backbone.View.extend({
 			className : 'contentTab',
@@ -73,7 +73,8 @@ define(['plugin/views/sidebar', 'plugin/lib/cytoscape', 'plugin/lib/nvd3_pie','p
 			drawPieCharts : function(){
 				console.log('Drawing pie charts');
 				var ID = this.graphs['Pie Charts'][0];
-				if (this.drawnChartIDs.indexOf(ID) < 0 && this.model.get('Number of noncoding variants') && this.model.get('Number of variants')){
+				//if (this.drawnChartIDs.indexOf(ID) < 0 && this.model.get('Number of noncoding variants') && this.model.get('Number of variants')){
+				if (this.drawnChartIDs.indexOf(ID) < 0 && this.model.get('Number of noncoding variants') >= 0 && this.model.get('Number of variants') >=0){;
 					this.drawPieChart({data : this.convertToKeyValuePair({'Number of noncoding variants' : this.model.get('Number of noncoding variants'),
 																	'Number of variants' : this.model.get('Number of variants')}),
 									id : ID,

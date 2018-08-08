@@ -1,4 +1,4 @@
-define(['plugin/views/sidebar', 'plugin/views/table'],
+define(['views/sidebar', 'views/table'],
 	function(Sidebar, Table){
 		return Backbone.View.extend({
 			className :'contentTab',

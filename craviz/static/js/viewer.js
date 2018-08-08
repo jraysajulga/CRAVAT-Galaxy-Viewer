@@ -1,4 +1,4 @@
-define(['plugin/views/tabs','plugin/models/data','plugin/collections/data','plugin/views/panel','plugin/views/summary','plugin/models/summary'],
+define(['views/tabs','models/data','collections/data','views/panel','views/summary','models/summary'],
     function( Tabs , Dataset, DataCollection, PanelView, SummaryView, SummaryModel) {
     return Backbone.View.extend({
         
