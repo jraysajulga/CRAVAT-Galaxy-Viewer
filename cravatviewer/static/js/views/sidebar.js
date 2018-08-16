@@ -1,3 +1,4 @@
+/** This class renders the sidebar which displays column options for visibility */
 define(['views/loader'],
       function(Loader){
             return Backbone.View.extend({
@@ -24,19 +25,15 @@ define(['views/loader'],
 
                   initialize : function(options){
                       this.columnTypeCollection = new ColumnTypeCollection({model : this.model});
-                      //this.model.on('change:headerConfig', this.renderColumnOptions, this);
                       this.render();
-                      //this.model.on('change:Job ID', this.render, this);
                   },
 
                   toggleVisibility : function(){
                     if (parseInt(this.$el.css('width')) <= 20){
                       this.$el.css('max-width', '235px');  
-                      //this.$el.css('max-width', '250px');  
                       this.button.html('<');
                     } else{
                       this.$el.css('max-width', '15px');
-                      //this.$el.css('max-width', '15px');
                       this.button.html('>');
                     }
                   },  
@@ -46,7 +43,6 @@ define(['views/loader'],
 
                       $content = $('<div>', {'class' : 'column-type-collection'});
                       $content.append(this.model.get('Job ID'));
-                      //$content.html('rsajulga_20180522_155808');
 
                       this.button = $('<button>', {'class' : 'sidebar-button'});
                       this.button.append('<');
@@ -90,7 +86,6 @@ define(['views/loader'],
                   renderLoader : function(){
 
                     loaderView = new Loader({model : this.model});
-                    //button  = new VisibilityButton({target : loaderView.$el});
 
                     var $content = $('<div>', {'class' : 'column-type-collection'});
                     $content.append(this.model.get('Job ID'));
@@ -101,7 +96,7 @@ define(['views/loader'],
       });
 });
 
-
+/** Renders a box category within the sidebar */
 var Box = Backbone.View.extend({
 
   initialize : function(params){
@@ -122,56 +117,49 @@ var Box = Backbone.View.extend({
 
     $div.append(content);
     $label.append(new VisibilityButton({target : content, minimized: false}).el);
-
-    //$label.append(new VisibilityButton({target : $div, minimized: false}).el);
   }
 });
 
+/** Renders the categories of column headers in the dataset */
 var ColumnTypeCollection =  Backbone.View.extend({
-      //tagName: 'div',
       className : 'column-type-collection',
 
       initialize : function(){
-        //this.model.on('change:headerConfig',this.render, this);
         this.render();
-            },
+      },
 
-            render : function(){
-              //var headerConfig = this.model.get('headerConfig');
-              var headerConfig = this.model.categories;
-              
-              var shownHeaders = this.model.get('shownHeaders');
+      render : function(){
+        var headerConfig = this.model.categories;
+        
+        var shownHeaders = this.model.get('shownHeaders');
 
-              for (var columnType in headerConfig){
-                //this.$el.append(new VisibilityButton({name: columnType}).el);
-                var columnViews = [];
-                //for (var header in headerConfig[columnType]){
-                for (var i = 0; i < headerConfig[columnType].length; i++){
-                  header = headerConfig[columnType][i];
-                  //console.log(shownHeaders);
-                  //console.log(headerConfig[columnType][i]);
-                  if (shownHeaders.indexOf(headerConfig[columnType][i]) > 0){
-                    className = 'columnOption shown'
-                  } else {
-                    className = 'columnOption' 
-                  }
-                  columnViews.push(new Column({model : this.model,
-                                  name: header,
-                                  type : columnType,
-                                  header : header,
-                                  className : className,
-                                  shown : headerConfig[columnType][i],
-                                  id : header + 'Option'}));
-                }
-                columnsCollectionView = new Columns({name: columnType, model : this.model, columns : columnViews});
-                this.$el.append(columnType);
-                this.$el.append(new VisibilityButton({target: columnsCollectionView.$el, minimized: true}).el);
-                this.$el.append('<p></p>');
-                this.$el.append(columnsCollectionView.el);
-              }
+        for (var columnType in headerConfig){
+          var columnViews = [];
+          for (var i = 0; i < headerConfig[columnType].length; i++){
+            header = headerConfig[columnType][i];
+            if (shownHeaders.indexOf(headerConfig[columnType][i]) > 0){
+              className = 'columnOption shown'
+            } else {
+              className = 'columnOption' 
             }
-      });
+            columnViews.push(new Column({model : this.model,
+                            name: header,
+                            type : columnType,
+                            header : header,
+                            className : className,
+                            shown : headerConfig[columnType][i],
+                            id : header + 'Option'}));
+          }
+          columnsCollectionView = new Columns({name: columnType, model : this.model, columns : columnViews});
+          this.$el.append(columnType);
+          this.$el.append(new VisibilityButton({target: columnsCollectionView.$el, minimized: true}).el);
+          this.$el.append('<p></p>');
+          this.$el.append(columnsCollectionView.el);
+        }
+      }
+});
 
+/** Renders a group of columns within a category */
 var Columns = Backbone.View.extend({
               
               className : 'columns-collection-view',
@@ -187,8 +175,9 @@ var Columns = Backbone.View.extend({
                           this.$el.append(this.columns[i].el);
                     }
               }
-  });
+});
 
+/** Renders a single category for each column header */
 var Column = Backbone.View.extend({
         tagname : 'div',
 
@@ -197,20 +186,17 @@ var Column = Backbone.View.extend({
         },
 
         initialize : function(options){
-              //this.model.on('change:headerConfig', this.render, this);
               this.name = options.name;
               this.header = options.header;
               this.type = options.type;
               this.shown = options.shown;
               this.render();
-              //this.model.on('change:shownHeaders', this.toggleClass, this);
         },
         render : function(){
               this.$el.html(this.name);
         },
 
         toggleClass : function(){
-          console.log('Toggling class');
           if (this.shown){
             $(this.el).addClass('shown'); 
           } else {
@@ -218,9 +204,9 @@ var Column = Backbone.View.extend({
           }
         },
 
+        // TODO: implement adaptive height
+
         toggleColumn : function(event){
-          //headerConfig[this.type][this.header] = !headerConfig[this.type][this.header];
-          console.log('Toggling column');
           var shownHeaders = this.model.get('shownHeaders');
           if (shownHeaders.indexOf(this.header) >= 0){
             header = this.header;
@@ -234,14 +220,15 @@ var Column = Backbone.View.extend({
         }
       });
 
+/** Renders a button for toggling a component's visibility */
 var VisibilityButton =  Backbone.View.extend({
       tagName: 'button',
 
-                  className: 'visibility-button',
+      className: 'visibility-button',
 
-                  events : {
-                        'click' : 'toggleVisibility'
-                  },
+      events : {
+            'click' : 'toggleVisibility'
+      },
 
       initialize : function(options){
                         this.minimized = options.minimized;
@@ -249,51 +236,45 @@ var VisibilityButton =  Backbone.View.extend({
                         this.render();      
                         if (this.minimiz)
                         this.target.hide();
-                  },
+      },
 
-                  render : function(){
-                    if (this.minimized){
-                      this.$el.html('+');
-                      this.target.hide();
-                      //this.height = this.target.css('max-height');
-                      //this.target.css('max-height', 0);
-                    } else {
-                      this.$el.html('-');
-                      // this.target.css('max-height',this.target.css('height'));
-                    }
-                  },
+      render : function(){
+        if (this.minimized){
+          this.$el.html('+');
+          this.target.hide();
+        } else {
+          this.$el.html('-');
+        }
+      },
 
-                  calculateHeight : function(){
-                        div = $('.columnOption');
-                        var height = parseInt(div.height());
-                        var attributes = ['padding-bottom','padding-top','margin-bottom','margin-top'];
-                        for (var i = 0; i < attributes.length; i++){ 
-                              height += parseInt(div.css(attributes[i]).replace('px',''));
-                        }
-                        numberOfDivs = this.target.context.childNodes.length;
-                        return height * numberOfDivs;
-                  },
+      /*
+      calculateHeight : function(){
+            div = $('.columnOption');
+            var height = parseInt(div.height());
+            var attributes = ['padding-bottom','padding-top','margin-bottom','margin-top'];
+            for (var i = 0; i < attributes.length; i++){ 
+                  height += parseInt(div.css(attributes[i]).replace('px',''));
+            }
+            numberOfDivs = this.target.context.childNodes.length;
+            return height * numberOfDivs;
+      },*/
 
-                  toggleVisibility : function(){
-                        if (this.minimized){
-                            this.target.show();
-                            this.target.css('max-height', '0px');
-                        }
+      toggleVisibility : function(){
+            if (this.minimized){
+                this.target.show();
+                this.target.css('max-height', '0px');
+            }
 
-                        console.log(this.target.css('max-height'));
-                        if (parseInt(this.target.css('max-height')) == 0){
-                              this.target.css('max-height','90vh');
-                              this.$el.html('-');
-                              //this.target.css('transition', 'height 0.5s');
-                        } else {
-                              this.target.css('max-height','0px');
-                              //this.target.addClass('open');
-                              this.$el.html('+');
-                              this.target.show();
-                              //this.target.css('transition', 'height 0.5s');
-                        }
-                  }
-      });
+            if (parseInt(this.target.css('max-height')) == 0){
+                  this.target.css('max-height','90vh');
+                  this.$el.html('-');
+            } else {
+                  this.target.css('max-height','0px');
+                  this.$el.html('+');
+                  this.target.show();
+            }
+      }
+});
 
 
 

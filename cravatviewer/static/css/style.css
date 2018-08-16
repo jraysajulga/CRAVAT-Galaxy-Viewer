@@ -599,10 +599,12 @@ thead tr th{
 	min-width: 100%;
 }
 
-.dataTable td, th{
-	min-width:40px;
-	width:40px;
-	max-width:40px;
+.dataTable td{
+	padding: 10px 5px !important;
+}
+
+div.dataTables_scrollHead > div > table > thead > tr > th{
+	padding: 10px 5px !important;	
 }
 
 

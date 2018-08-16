@@ -7,40 +7,19 @@ define([],
 			},
 
 			initialize : function(config){
-				console.log('Initializing summary model');
-				//this.model = options.models;
 				this.names = config.names;
 				var models = config.models;
-
-				//this.model('Variant').on('change:All headers', this.getVariantData, this);
 
 				this.variantModel = models.findWhere({'name':'Variant'});
 				this.geneModel = models.findWhere({'name':'Gene'});
 				this.noncodingModel = models.findWhere({'name':'Noncoding'});
 				this.errorModel = models.findWhere({'name':'Error'});
 
-				/*this.variantModel.on('change:length', this.getLength, this);
-				this.geneModel.on('change:length', this.getLength, this);
-				this.noncodingModel.on('change:length', this.getLength, this);
-				this.errorModel.on('change:length', this.getLength, this);*/
 				view = this;
 				models.each(function(model){
 					model.on('change:length', view.getLength, view);
 					model.on('change:ID', view.getData, view);
 				});
-				//models.on('change:length', this.getLength, this);
-
-				/*
-				this.variantModel.on('change:All headers', this.getVariantData, this);
-				/*
-				this.variantModel.on('change:length', this.getVariantDataLength, this);
-				this.variantModel.on('change:Summary Data', this.renderCircosPlot, this);
-				this.geneModel.on('change:data', this.getGeneData, this);
-				this.geneModel.on('change:length', this.getGeneDataLength, this);
-				this.noncodingModel.on('change:length', this.getNoncodingData, this);  // Only the length is needed for noncoding data.
-				this.errorModel.on('change:length', this.getErrorData, this);*/
-				//this.on('change', this.updateButton, this);
-
 				this.stats = {};
 			},
 			
@@ -50,7 +29,6 @@ define([],
 			},
 
 			formatCircosData : function(data, view){
-				console.log('Creating circos data');
 				var headers = data.shift();
 				var circosData = {};
 				var value;
