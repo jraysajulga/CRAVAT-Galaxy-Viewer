@@ -599,7 +599,7 @@ thead tr th{
 	min-width: 100%;
 }
 
-.dataTable td{
+.dataTable td {
 	padding: 10px 5px !important;
 }
 
@@ -608,7 +608,7 @@ div.dataTables_scrollHead > div > table > thead > tr > th{
 }
 
 
-.dataTable td.selected {
+.dataTable td:hover {
 	background-color: #fcec5d;
 	background: linear-gradient(#ffface,#fff34f);
 	border: 1px solid black;

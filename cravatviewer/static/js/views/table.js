@@ -147,7 +147,7 @@ define([],
 					 	targets : '_all',
 					 	"type" : "mystring",
 						render: function ( data, type, row ) {
-							var limit = 18;
+							var limit = 20;
 							var n = 3;
 							var output = data;
 							var re = new RegExp('[A-Z]+');
@@ -160,8 +160,13 @@ define([],
 						        	// Account for large insertions and deletions
 						        	reference = row[view.model.get('All headers').indexOf('Reference peptide')];
 						        	variant = row[view.model.get('All headers').indexOf('Variant peptide')];
-						        	variant = view.highlight_mutated_amino_acid(reference, variant, limit);
-						        	return variant;
+						        	if (variant.length > limit){
+						        		variant = variant.substr( 0, limit);
+						        		reference = reference.substr( 0, limit);
+						        		return view.highlight_mutated_amino_acid(reference, variant, 100) + '...';
+						        	} else {
+						        		return view.highlight_mutated_amino_acid(reference, variant, 100);
+						        	}
 						        }
 							}
 							if (type === 'display' && variant.length > limit){
@@ -175,18 +180,20 @@ define([],
 					],
 					'drawCallback': function( settings ) {
 						view.fixHeaderWidth();
+						//view.refreshHeaders();
 					},
                     'initComplete': function(settings, json) {
 						$('#' + view.name + 'DataTable').show();
 						view.dataTable.DataTable().row(':eq(0)').select();
 
-						if ($(view.dataTable.DataTable().column( 2 ).header()).html() == 'Chromosome'){
-							$(view.dataTable.DataTable().column( 2 ).header()).html('Chromo<br />some');
-						}
+						//if ($(view.dataTable.DataTable().column( 2 ).header()).html() == 'Chromosome'){
+						//	$(view.dataTable.DataTable().column( 2 ).header()).html('Chromo<br />some');
+						//}
 						//view.fixHeaderWidth();
 						view.refreshHeaders();
 						$(window).bind('resize', function () {
 							view.fixHeaderWidth();
+							view.refreshHeaders();
 						});
 					}
                 } );
@@ -204,7 +211,7 @@ define([],
 				$('#' + this.name + ' tbody').on('click', 'td', function () {
 					view.dataTable.DataTable().cells('.selected').deselect();
 					view.dataTable.DataTable().cell( this ).select();
-					var datum = $(this).html();
+					var datum = view.dataTable.DataTable().cell( this ).data();
 					if (view.dataTable.DataTable().cell( this ).index().column == view.model.get('All headers').indexOf('Variant peptide')){
 						variant_peptide = view.dataTable.DataTable().cell( this ).data();
 						reference_peptide = view.dataTable.DataTable().row(view.dataTable.DataTable().cell( this ).index().row).data()[view.model.get('All headers').indexOf('Reference peptide')];
@@ -218,6 +225,51 @@ define([],
 				}
 				this.firstRun = true;
 			},
+
+			fixHeaderWidth : function(){
+				var children = $('#' + this.name + ' > tbody > tr.odd.selected').children();
+				var headerChildren = $('#' + this.name + 'DataTable > div.dataTables_scroll > div.dataTables_scrollHead > div > table > thead > tr').children();
+				var totalWidth = 0;
+				var width;
+				for (var i = 1; i <= children.length; i++){
+					width = $('#' + this.name + ' > tbody > tr.odd.selected > td:nth-child(' + i + ')').width();
+					totalWidth += $('#' + this.name + ' > tbody > tr.odd.selected > td:nth-child(' + i + ')').outerWidth();
+					$('#' + this.name + '_wrapper > div > div > div> table > thead > tr > th:nth-child(' + i + ')').css('width',width + 'px');
+					$('#' + this.name + '_wrapper > div > div > div> table > thead > tr > th:nth-child(' + i + ')').css('min-width',width + 'px');
+					$('#' + this.name + '_wrapper > div > div > div> table > thead > tr > th:nth-child(' + i + ')').css('max-width',width + 'px');
+				}	// Check if min and max widths are necessary
+			},
+
+			refreshHeaders : function(){
+				var targetVisibility = this.dataTable.DataTable().columns().visible();
+				var currentVisibility = this.model.columnVisibility();
+				var col;
+				var children = $('#' + this.name + ' > tbody > tr.odd.selected').children();
+				for (var i = 0; i < children.length; i++){
+					var width = 80;
+					$('#' + this.name + '_wrapper > div > div > div> table > thead > tr > th:nth-child(' + i + ')').css('width',width + 'px');
+					$('#' + this.name + '_wrapper > div > div > div> table > thead > tr > th:nth-child(' + i + ')').css('min-width',width + 'px');
+					$('#' + this.name + '_wrapper > div > div > div> table > thead > tr > th:nth-child(' + i + ')').css('max-width',width + 'px');
+				}
+				for (var i = 0; i < targetVisibility.length; i++){
+					if (targetVisibility[i] !== currentVisibility[i]){
+						col = this.dataTable.DataTable().columns(i);
+						col.visible(!col.visible()[0]);
+					}
+				}
+				this.draw();
+			},
+
+
+			draw : function(){
+				if ($.fn.DataTable.isDataTable(this.dataTable)){
+					this.dataTable.DataTable().columns.adjust().draw();
+					//this.dataTable.DataTable().draw();
+					this.fixHeaderWidth();
+				}
+			},
+
+
 
 			highlight_mutated_amino_acid : function(reference, variant, limit){
 				var positions = [];
@@ -244,12 +296,13 @@ define([],
 	        	var adjuster = 0;
 	        	for (i = 0; i < positions.length; i++){
 	        		pos = positions[i];
-	        		replacement = variant.slice(pos, pos+1);
+	        		replacement = displayed_variant.slice(pos, pos+1);
 	        		if (pos < limit){ // If the mutated position is within the limit...
-	        			displayed_variant = variant.slice(0,pos) + tpl({varAA: replacement}) + variant.slice(pos+1,limit);
+	        			displayed_variant = displayed_variant.slice(0,pos) + tpl({varAA: replacement}) + displayed_variant.slice(pos+1,limit);
 	        		} else {
-	        			displayed_variant = variant.slice(0,limit);
+	        			displayed_variant = displayed_variant.slice(0,limit);
 	        		}
+	        		console.log(displayed_variant);
 	        	}
 	        	if (limit < variant.length){
     				displayed_variant += '...';
@@ -257,49 +310,6 @@ define([],
 	        	return displayed_variant;
 			},
 
-
-
-			fixHeaderWidth : function(){
-				var children = $('#' + this.name + ' > tbody > tr.odd.selected').children();
-				var headerChildren = $('#' + this.name + 'DataTable > div.dataTables_scroll > div.dataTables_scrollHead > div > table > thead > tr').children();
-				var totalWidth = 0;
-				var width;
-				for (var i = 1; i <= children.length; i++){
-					width = $('#' + this.name + ' > tbody > tr.odd.selected > td:nth-child(' + i + ')').width();
-					totalWidth += $('#' + this.name + ' > tbody > tr.odd.selected > td:nth-child(' + i + ')').outerWidth();
-					$('#' + this.name + '_wrapper > div > div > div> table > thead > tr > th:nth-child(' + i + ')').css('width',width + 'px');
-					$('#' + this.name + '_wrapper > div > div > div> table > thead > tr > th:nth-child(' + i + ')').css('min-width',width + 'px');
-					$('#' + this.name + '_wrapper > div > div > div> table > thead > tr > th:nth-child(' + i + ')').css('max-width',width + 'px');
-				}	// Check if min and max widths are necessary
-			},
-
-			refreshHeaders : function(){
-				var targetVisibility = this.dataTable.DataTable().columns().visible();
-				var currentVisibility = this.model.columnVisibility();
-				var col;
-				var children = $('#' + this.name + ' > tbody > tr.odd.selected').children();
-				for (var i = 0; i < children.length; i++){
-					var width = 20;
-					$('#' + this.name + '_wrapper > div > div > div> table > thead > tr > th:nth-child(' + i + ')').css('width',width + 'px');
-					$('#' + this.name + '_wrapper > div > div > div> table > thead > tr > th:nth-child(' + i + ')').css('min-width',width + 'px');
-					$('#' + this.name + '_wrapper > div > div > div> table > thead > tr > th:nth-child(' + i + ')').css('max-width',width + 'px');
-				}
-				for (var i = 0; i < targetVisibility.length; i++){
-					if (targetVisibility[i] !== currentVisibility[i]){
-						col = this.dataTable.DataTable().columns(i);
-						col.visible(!col.visible()[0]);
-					}
-				}
-				this.draw();
-			},
-
-			draw : function(){
-				if ($.fn.DataTable.isDataTable(this.dataTable)){
-					this.dataTable.DataTable().columns.adjust().draw();
-					this.dataTable.DataTable().draw();
-					this.fixHeaderWidth();
-				}
-			},
 
 			formatToDataTableHeader : function(header){
 				var header_columns = [];
