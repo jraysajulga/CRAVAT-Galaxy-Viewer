@@ -4,7 +4,24 @@
     <data_sources>
         <data_source>
             <model_class>HistoryDatasetAssociation</model_class>
-            <test test_attr="creating_job.tool_id">cravatp_submit</test>
+            <test test_attr="creating_job.tool_id">
+                cravatp_submit
+            </test>
+            <test test_attr="creating_job.tool_id">
+                toolshed.g2.bx.psu.edu/repos/galaxyp/cravatool/cravatool/1.0.0
+            </test>
+            <test test_attr="creating_job.tool_id">
+                toolshed.g2.bx.psu.edu/repos/galaxyp/cravatool/1.0.0
+            </test>
+            <test test_attr="creating_job.tool_id">
+                cravatp_submit
+            </test>
+            <test test_attr="creating_job.tool_id">
+                toolshed.g2.bx.psu.edu/repos/galaxyp/cravatp_submit/1.0.0
+            </test>
+            <test test_attr="creating_job.tool_id">
+                toolshed.g2.bx.psu.edu/repos/galaxyp/cravatool/cravatp_submit/1.0.0
+            </test>
             <to_param param_attr="id">dataset_id</to_param>
         </data_source>
     </data_sources>
